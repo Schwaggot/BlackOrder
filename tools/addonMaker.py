@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 
-###########################
-# Addon moduel maker tool #
-# ======================= #
+###############
+# Addon maker #
+# =========== #
+# This is a tool written to easy make new addonts. Free to use.
+# Written by: Andreas Brostrom | Evul <andreas.brostrom.ce@gmail.com>
+
 __version__ = 0.1
 
 import os
@@ -175,16 +178,22 @@ Atleast one parameter is required...
 
     # get mod name
     print('Checking for mod data...')
-    PREFIX = getModData('script_mod.hpp','PREFIX')
-    PREFIX = PREFIX[15:]
-    PREFIX = PREFIX.rstrip()
-    print('Mod prefix detected: {}.'.format(PREFIX))
+    try:
+        PREFIX = getModData('script_mod.hpp','PREFIX')
+        PREFIX = PREFIX[15:]
+        PREFIX = PREFIX.rstrip()
+        print('Mod prefix detected: {}.'.format(PREFIX))
+    except:
+        PREFIX =''
 
-    AUTHOR = getModData('config.cpp','author')
-    AUTHOR = AUTHOR[17:]
-    AUTHOR = AUTHOR[:-2]
-    AUTHOR = AUTHOR.rstrip()
-    print('Mod author detected: {}.'.format(AUTHOR))
+    try:
+        AUTHOR = getModData('config.cpp','author')
+        AUTHOR = AUTHOR[17:]
+        AUTHOR = AUTHOR[:-2]
+        AUTHOR = AUTHOR.rstrip()
+        print('Mod author detected: {}.'.format(AUTHOR))
+    except:
+        AUTHOR =''
 
     try:
         AUTHORS = getModData('config.cpp','authors')
@@ -195,11 +204,14 @@ Atleast one parameter is required...
     except:
         AUTHORS =''
 
-    URL = getModData('config.cpp','url = ')
-    URL = URL[14:]
-    URL = URL[:-2]
-    URL = URL.rstrip()
-    print('Mod url detected: {}.'.format(URL))
+    try:
+        URL = getModData('config.cpp','url = ')
+        URL = URL[14:]
+        URL = URL[:-2]
+        URL = URL.rstrip()
+        print('Mod url detected: {}.'.format(URL))
+    except:
+        URL =''
 
     # check if CBA is used
     CBA = cbaRequired()
