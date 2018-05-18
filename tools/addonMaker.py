@@ -23,9 +23,9 @@ def getModData(file,string):
     fileObject = open('addons\\main\\{}'.format(file), "r")
     for l in fileObject:
         if (string in l):
-            data = l
+            modData = l
     fileObject.close()
-    return data
+    return modData
 
 
 def findFile(name, path):
@@ -175,22 +175,25 @@ Atleast one parameter is required...
 
     # get mod name
     print('Checking for mod data...')
-    PREFIX = getModData('script_mod.hpp','#define PREFIX')
+    PREFIX = getModData('script_mod.hpp','PREFIX')
     PREFIX = PREFIX[15:]
     PREFIX = PREFIX.rstrip()
     print('Mod prefix detected: {}.'.format(PREFIX))
 
-    AUTHOR = getModData('config.cpp','author = ')
+    AUTHOR = getModData('config.cpp','author')
     AUTHOR = AUTHOR[17:]
     AUTHOR = AUTHOR[:-2]
     AUTHOR = AUTHOR.rstrip()
     print('Mod author detected: {}.'.format(AUTHOR))
 
-    AUTHORS = getModData('config.cpp','authors[] = {')
-    AUTHORS = AUTHORS[21:]
-    AUTHORS = AUTHORS[:-3]
-    AUTHORS = AUTHORS.rstrip()
-    print('Mod authors detected: {}.'.format(AUTHORS))
+    try:
+        AUTHORS = getModData('config.cpp','authors')
+        AUTHORS = AUTHORS[21:]
+        AUTHORS = AUTHORS[:-3]
+        AUTHORS = AUTHORS.rstrip()
+        print('Mod authors detected: {}.'.format(AUTHORS))
+    except:
+        AUTHORS =''
 
     URL = getModData('config.cpp','url = ')
     URL = URL[14:]
