@@ -14,7 +14,6 @@ AUTHOR = ""
 AUTHORS = ""
 URL = ""
 
-
 def getModData(file,string):
     try:
         os.stat('addons\\main\\{}'.format(file))
@@ -27,6 +26,14 @@ def getModData(file,string):
             data = l
     fileObject.close()
     return data
+
+
+def findFile(name, path):
+    for root, dirs, files in os.walk(path):
+        if name in files:
+            return os.path.join(root, name)
+
+
 
 def cbaRequired():
     cbaIsRequired = False
@@ -56,7 +63,22 @@ def checkAddonExist(ADDON):
 
 
 
-def setUpNewAddon(ADDON,PREFIX,CBA,AUTHOR,AUTHORS,URL):
+def setUpNewAddon(ADDON,PREFIX,CBA,STRINGTABLE,AUTHOR,AUTHORS,URL):
+    def buildFile(object,line):
+        try:
+            addonfile = open('addons\\{}\\{}'.format(ADDON,object),"w+t")
+        except:
+            sys.exit('Fatal error could not create file...')
+        print('Creating {}'.format(object))
+        try:
+            for str in line:
+                addonfile.write('{}\n'.format(str))
+        except:
+            sys.exit('Fatal error could not write to file...')
+        addonfile.close()
+        print('{} is created.'.format(object))
+
+
     print('Generating new addon {} for {}...'.format(ADDON,PREFIX))
     try:
         os.mkdir('addons\\{}'.format(ADDON))
@@ -65,66 +87,52 @@ def setUpNewAddon(ADDON,PREFIX,CBA,AUTHOR,AUTHORS,URL):
 
 
 
-    # set up $PBOPREFIX$
-    try:
-        object = '$PBOPREFIX$'
-        addonfile = open('addons\\{}\\$PBOPREFIX$'.format(ADDON,object),"w+t")
-    except:
-        sys.exit('Fatal error could not create file...')
-    print('Creating {}'.format(object))
-    try:
-        addonfile.write('z\\{}\\addons\\{}'.format(PREFIX,ADDON))
-    except:
-        sys.exit('Fatal error could not write to file...')
-    addonfile.close()
-    print('{} is created.'.format(object))
+    # build $PBOPREFIX$
+    stringArray = ['z\\{}\\addons\\{}'.format(PREFIX,ADDON)]
+    buildFile('$PBOPREFIX$',stringArray)
+
+    # build config.cpp
+    stringArray = [
+        '#include "script_component.hpp"',
+        '',
+        'class CfgPatches {',
+        '    class ADDON {',
+        '        name = COMPONENT_NAME;',
+        '        units[] = {};',
+        '        weapons[] = {};',
+        '        requiredVersion = REQUIRED_VERSION;',
+        '        requiredAddons[] = {{\"{0}_main\",\"{0}_common\"}};'.format(PREFIX),
+        '        author = {};'.format(AUTHOR),
+        '        authors[] = {{{}}};'.format(AUTHORS),
+        '        url = {};'.format(URL),
+        '        VERSION_CONFIG;',
+        '    };',
+        '};'
+    ]
+    buildFile('config.cpp',stringArray)
+
+    # build script_component.hpp
+    if CBA:
+        stringArray = [
+            '#define COMPONENT {}'.format(ADDON),
+            '#define COMPONENT_BEAUTIFIED {}'.format(ADDON.title()),
+            '',
+            '#include \"\\z\\{}\\addons\\{}\\script_mod.hpp\"'.format(PREFIX,ADDON),
+            '#include \"\\z\\{}\\addons\\{}\\script_macros.hpp\"\n'.format(PREFIX,ADDON)
+        ]
+        buildFile('script_component.hpp',stringArray)
 
 
+    #build stringtable.xml
+    if STRINGTABLE:
+        stringArray = [
+            '<Project name="{}">'.format(PREFIX.title()),
+            '    <Package name="{}">'.format(ADDON),
+            '    </Package>',
+            '</Project>'
+        ]
+        buildFile('stringtable.xml',stringArray)
 
-    # set up config.cpp
-    try:
-        object = 'config.cpp'
-        addonfile = open('addons\\{}\\{}'.format(ADDON,object),"w+t")
-    except:
-        sys.exit('Fatal error could not create file...')
-    print('Creating {}'.format(object))
-    try:
-        addonfile.write('#include "script_component.hpp"\n')
-        addonfile.write('\n')
-        addonfile.write('class CfgPatches {\n')
-        addonfile.write('    class ADDON {\n')
-        addonfile.write('        name = COMPONENT_NAME;\n')
-        addonfile.write('        units[] = {};\n')
-        addonfile.write('        weapons[] = {};\n')
-        addonfile.write('        requiredVersion = REQUIRED_VERSION;\n')
-        addonfile.write('        requiredAddons[] = {{\"{0}_main\",\"{0}_common\"}};\n'.format(PREFIX))
-        addonfile.write('        author = {};\n'.format(AUTHOR))
-        addonfile.write('        authors[] = {{{}}};\n'.format(AUTHORS))
-        addonfile.write('        url = {};\n'.format(URL))
-        addonfile.write('        VERSION_CONFIG;\n')
-        addonfile.write('    };\n')
-        addonfile.write('};\n')
-    except:
-        sys.exit('Fatal error could not write to file...')
-    addonfile.close()
-    print('{} is created.'.format(object))
-
-    try:
-        object = 'script_component.hpp'
-        addonfile = open('addons\\{}\\{}'.format(ADDON,object),"w+t")
-    except:
-        sys.exit('Fatal error could not create file...')
-    print('Creating {}'.format(object))
-    try:
-        addonfile.write('#define COMPONENT {}\n'.format(ADDON))
-        addonfile.write('#define COMPONENT_BEAUTIFIED {}\n'.format(ADDON.title()))
-        addonfile.write('\n')
-        addonfile.write('#include \"\\z\\{}\\addons\\{}\\script_mod.hpp\"\n'.format(PREFIX,ADDON))
-        addonfile.write('#include \"\\z\\{}\\addons\\{}\\script_macros.hpp\"\n'.format(PREFIX,ADDON))
-    except:
-        sys.exit('Fatal error could not write to file...')
-    addonfile.close()
-    print('{} is created.'.format(object))
 
 
 
@@ -193,9 +201,17 @@ Atleast one parameter is required...
     # check if CBA is used
     CBA = cbaRequired()
 
+    # check if using mod uses stringtables
+    try:
+        stringTableLable = 'stringtable.xml'
+        findStringTable = findFile(stringTableLable, addonsPath)
+        if stringTableLable in findStringTable:
+            STRINGTABLE = True
+    except:
+        STRINGTABLE = False
 
     checkAddonExist(ADDON)
-    setUpNewAddon(ADDON,PREFIX,CBA,AUTHOR,AUTHORS,URL)
+    setUpNewAddon(ADDON,PREFIX,CBA,STRINGTABLE,AUTHOR,AUTHORS,URL)
 
 
 if __name__ == "__main__":
