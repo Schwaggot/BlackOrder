@@ -3,7 +3,9 @@
 ###############
 # Addon maker #
 # =========== #
-# This is a tool written to easy make new addonts. Free to use.
+# This is a tool written to easy make new addons.
+# Free to use.
+#
 # Written by: Andreas Brostrom | Evul <andreas.brostrom.ce@gmail.com>
 
 __version__ = 0.1
