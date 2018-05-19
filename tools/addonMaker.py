@@ -122,8 +122,8 @@ def setUpNewAddon(ADDON,PREFIX,CBA,STRINGTABLE,AUTHOR,AUTHORS,URL):
             '#define COMPONENT {}'.format(ADDON),
             '#define COMPONENT_BEAUTIFIED {}'.format(ADDON.title()),
             '',
-            '#include \"\\z\\{}\\addons\\{}\\script_mod.hpp\"'.format(PREFIX,ADDON),
-            '#include \"\\z\\{}\\addons\\{}\\script_macros.hpp\"\n'.format(PREFIX,ADDON)
+            '#include \"\\z\\{}\\addons\\main\\script_mod.hpp\"'.format(PREFIX),
+            '#include \"\\z\\{}\\addons\\main\\script_macros.hpp\"\n'.format(PREFIX)
         ]
         buildFile('script_component.hpp',stringArray)
 
